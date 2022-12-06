@@ -1,0 +1,16 @@
+FROM scottyhardy/docker-wine:stable-7.0
+
+RUN mkdir -p /wineuser/prefix32 && \
+  chown 1010:1010 /wineuser/prefix32
+
+ENV WINEARCH=win32 \ 
+    USE_XVFB=yes \
+    XVFB_RESOLUTION=320x240x8 \
+    XVFB_SCREEN=0 \
+    XVFB_SERVER=:95 \
+    DISPLAY=:95 \
+    WINEPREFIX=/wineuser/prefix32 
+
+COPY ./some_program.exe /some_program.exe
+
+ENTRYPOINT ["/usr/bin/entrypoint"]

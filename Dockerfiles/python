@@ -1,0 +1,21 @@
+FROM python:3.9-slim-bullseye as builder
+ENV PYTHONUNBUFFERED 1
+COPY ./requirements-docker.txt /requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /wheels -r requirements.txt
+
+FROM python:3.9-slim-bullseye as production
+
+COPY --from=builder /wheels /wheels
+COPY . /py-app
+
+RUN addgroup --system --gid 1100 username && \
+    adduser --system --no-create-home --shell /bin/false --disabled-password --uid 1100 --group username && \
+    pip install --no-cache /wheels/* && \
+    rm -rf /wheels && \
+    chmod +x launch_script.sh
+
+USER username
+
+WORKDIR /py-app
+
+ENTRYPOINT ["/bin/bash", "launch_script.sh"]
